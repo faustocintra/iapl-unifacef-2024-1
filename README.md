@@ -1,2 +1,17 @@
-# iapl-unifacef-2024-1
-Repositório da disciplina Integração de Aplicações, 7º semestre Engenharia de Software Uni-FACEF 2024/1
+# Comando para criação de projeto back-end
+npx @aka-demy/create-express-app
+
+Respostas para as perguntas:
+* Project name: back-end
+* Language: JavaScript
+* Template engine: None
+* Package manager: npm
+
+# Instalação do Prisma
+npm install prisma --save-dev
+
+# Inicialização do Prisma
+npx prisma init
+
+# Executando uma migration
+npx prisma migrate dev --name create-user
