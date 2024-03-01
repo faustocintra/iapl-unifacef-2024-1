@@ -18,3 +18,6 @@ npx prisma migrate dev --name create-user
 
 # Exibindo os dados com Prisma Studio
 npx prisma studio
+
+# Criado por:
+* Lucas Henrique
