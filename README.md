@@ -20,4 +20,4 @@ npx prisma migrate dev --name create-user
 npx prisma studio
 
 # Criado por:
-* Lucas Henrique
+* [Lucas Henrique](https://github.com/luchenrique)
