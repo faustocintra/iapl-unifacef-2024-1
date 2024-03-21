@@ -5,7 +5,7 @@ Respostas para as perguntas:
 * Project name: back-end
 * Language: JavaScript
 * Template engine: None
-* Package manager: npm
+* Package manager: npm 
 
 # Instalação do Prisma
 npm install prisma --save-dev
