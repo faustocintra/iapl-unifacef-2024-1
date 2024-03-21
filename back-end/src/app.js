@@ -1,3 +1,7 @@
+import dotenv from 'dotenv'
+// Carrega as variáveis do arquivo .env dentro do objeto global process.env
+dotenv.config()
+
 import express, { json, urlencoded } from "express";
 import cookieParser from "cookie-parser";
 import logger from "morgan";
