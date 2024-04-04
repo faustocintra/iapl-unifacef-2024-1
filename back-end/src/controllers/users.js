@@ -21,7 +21,7 @@ controller.create = async function (req, res) {
 controller.retrieveAll = async function (req, res) {
   try {
     const result = await prisma.user.findMany();
-    // Deleta o campo "password", para não ser enviado ao front-end
+    // Deleta o campo "password" para não ser enviado ao front-end
     for (let user of result) {
       if(user.password) delete user.password;
     }
@@ -39,7 +39,7 @@ controller.retrieveOne = async function (req, res) {
     const result = await prisma.user.findUnique({
       where: { id: Number(req.params.id) },
     });
-    // Deleta o campo "password", para não ser enviado ao front-end
+    // Deleta o campo "password" para não ser enviado ao front-end
     if (user.password) delete user.password;
     // Encontrou: retorna HTTP 200: OK (implícito)
     if (result) res.send(result);
