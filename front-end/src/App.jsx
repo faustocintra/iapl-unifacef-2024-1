@@ -9,7 +9,7 @@ import { BrowserRouter } from 'react-router-dom'
 import AppRoutes from './routes/AppRoutes'
 import MainMenu from './ui/MainMenu'
 
-// Ajusta o CSS de acordo com o tema (claro ou escuro) ativo
+// Ajusta o css de acordo com o tema (claro ou escuro)
 import CssBaseline from '@mui/material/CssBaseline'
 
 function App() {
