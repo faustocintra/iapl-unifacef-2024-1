@@ -17,7 +17,7 @@ controller.create = async function(req, res) {
   }
   catch(error) {
     console.error(error)
-    // HTTP 500: Internal Server Error
+    // HTTP 500: internal server error
     res.status(500).end()
   }
 }
