@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 
-export default function(req, res, next) {
+export default function (req, res, next) {
 
   // As rotas que eventualmente não necessitarem
   // de autenticação devem ser colocadas no
@@ -13,8 +13,8 @@ export default function(req, res, next) {
   // Verifica se a rota atual está nas exceções
   // de bypassRoutes. Caso esteja, passa para o
   // próximo middleware sem verificar a autenticação
-  for(let route of bypassRoutes) {
-    if(route.url === req.url && route.method === req.method) {
+  for (let route of bypassRoutes) {
+    if (route.url === req.url && route.method === req.method) {
       next()
       return
     }
@@ -26,21 +26,21 @@ export default function(req, res, next) {
 
   // O header não existe, o token não foi passado:
   // HTTP 403: Forbidden
-  if(! authHeader) return res.status(403).end()
+  if (!authHeader) return res.status(403).end()
 
   // O header Authorization é enviado como uma string
   // Bearer: XXXX
   // onde XXXX é o token. Portanto, para extrair o token,
   // precisamos recortar a string no ponto onde há um espaço
   // e pegar somente a a segunda parte
-  const [ , token] = authHeader.split(' ')
+  const [, token] = authHeader.split(' ')
 
   // Valida o token
   jwt.verify(token, process.env.TOKEN_SECRET, (error, user) => {
 
     // Token inválido ou expirado
     // HTTP 403: Forbidden
-    if(error) return res.status(403).end()
+    if (error) return res.status(403).end()
 
     /*
       Se chegamos até aqui, o token está OK e temos as informações
@@ -48,7 +48,7 @@ export default function(req, res, next) {
       para futura utilização
     */
     req.authUser = user
-    
+
     // Continua para a rota normal
     next()
   })
