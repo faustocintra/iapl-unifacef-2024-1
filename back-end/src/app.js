@@ -28,7 +28,9 @@ app.use(auth)
  * ROTAS
  *************************************************/
 
-import usersRouter from './routes/users.js'
-app.use('/users', usersRouter)
+// import usersRouter from './routes/users.js'
+import carsRouter from './routes/cars.js'
+// app.use('/users', usersRouter)
+app.use('/cars', carsRouter)
 
 export default app;
