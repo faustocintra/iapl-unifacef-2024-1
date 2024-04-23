@@ -20,3 +20,17 @@ model User {
   password    String        // Senha
   is_admin    Boolean       @default(false)
 }
+
+model Cars {
+  id          Int           @id @default(autoincrement())
+  brand       String        // Marca do veículo 
+  model       String        // Modelo do veículo  
+  owner_name  String        // Nome do dono
+  color       String        // Cor do veículo
+  year        Int           // Ano do veíuclo
+  imported    Boolean       @default(false) // Veículo importado (S/N)
+  plates      String        // Placa do veículo
+}
+
+// Execute o comando abaixo:
+// npx prisma migrate dev --name create-users
