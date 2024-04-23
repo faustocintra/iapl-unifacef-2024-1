@@ -21,8 +21,8 @@ app.use("/", indexRouter);
 //app.use("/users", usersRouter);
 
 // MIDDLEWARE DE AUTENTICAÇÃO
-import auth from './middleware/auth.js'
-app.use(auth)
+// import auth from './middleware/auth.js'
+// app.use(auth)
 
 /*************************************************
  * ROTAS
@@ -30,5 +30,8 @@ app.use(auth)
 
 import usersRouter from './routes/users.js'
 app.use('/users', usersRouter)
+
+import carsRouter from './routes/cars.js'
+app.use('/cars', carsRouter)
 
 export default app;

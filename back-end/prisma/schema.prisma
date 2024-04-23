@@ -20,3 +20,14 @@ model User {
   password    String        // Senha
   is_admin    Boolean       @default(false)
 }
+
+model Cars {
+  id          Int           @id @default(autoincrement())
+  brand       String        // Marca do veículo
+  model       String        // Modelo do veículo
+  owner_name  String        // Nome do proprietário
+  color       String       // Cor do veículo
+  year        Int           // Ano de fabricação
+  imported    Boolean       @default(false) // Veículo importado? 
+  plates      String        @unique // Placa do veículo
+}
