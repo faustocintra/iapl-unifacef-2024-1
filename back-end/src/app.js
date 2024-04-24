@@ -18,17 +18,13 @@ app.use(urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use("/", indexRouter);
-//app.use("/users", usersRouter);
-
-// MIDDLEWARE DE AUTENTICAÇÃO
-import auth from './middleware/auth.js'
-app.use(auth)
-
-/*************************************************
- * ROTAS
- *************************************************/
 
 import usersRouter from './routes/users.js'
+import carsRouter from './routes/cars.js'
 app.use('/users', usersRouter)
 
+app.use('/cars', carsRouter)
+
 export default app;
+
+

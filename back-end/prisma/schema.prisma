@@ -9,8 +9,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
 }
 
 model User {
@@ -19,4 +19,15 @@ model User {
   username    String        @unique // Nome de usuário
   password    String        // Senha
   is_admin    Boolean       @default(false)
+}
+
+model Cars {
+  id            Int           @id @default(autoincrement())
+  brand         String       
+  model         String        
+  owner_name    String        
+  color         String        
+  year          Int        
+  imported      Boolean       @default(false)
+  plates        String
 }
