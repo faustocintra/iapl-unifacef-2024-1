@@ -13,7 +13,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Cars2 {
+model Cars {
   id            Int         @id @default(autoincrement())
   brand      String
   model      String

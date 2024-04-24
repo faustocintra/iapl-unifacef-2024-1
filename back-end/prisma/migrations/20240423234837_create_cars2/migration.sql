@@ -1,5 +1,5 @@
 -- CreateTable
-CREATE TABLE "Cars" (
+CREATE TABLE "Cars2" (
     "id" SERIAL NOT NULL,
     "brand" TEXT NOT NULL,
     "model" TEXT NOT NULL,
@@ -9,8 +9,8 @@ CREATE TABLE "Cars" (
     "imported" BOOLEAN NOT NULL DEFAULT false,
     "plates" TEXT NOT NULL,
 
-    CONSTRAINT "Cars_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Cars2_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Cars_plates_key" ON "Cars"("plates");
+CREATE UNIQUE INDEX "Cars2_plates_key" ON "Cars2"("plates");

@@ -21,8 +21,8 @@ app.use("/", indexRouter);
 //app.use("/users", usersRouter);
 
 // MIDDLEWARE DE AUTENTICAÇÃO
-import auth from './middleware/auth.js'
-app.use(auth)
+// import auth from './middleware/auth.js'
+// app.use(auth)
 
 /*************************************************
  * ROTAS
