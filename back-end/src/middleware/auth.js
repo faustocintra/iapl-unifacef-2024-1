@@ -7,7 +7,8 @@ export default function(req, res, next) {
   // objeto abaixo
   const bypassRoutes = [
     { url: '/users/login', method: 'POST' },
-    { url: '/users', method: 'POST' }
+    { url: '/users', method: 'POST' },
+    { url: '/cars', method: 'POST'}
   ]
 
   // Verifica se a rota atual está nas exceções
@@ -36,7 +37,7 @@ export default function(req, res, next) {
   const [ , token] = authHeader.split(' ')
 
   // Valida o token
-  jwt.verify(token, process.env.TOKEN_SECRET, (error, user) => {
+  jwt.verify(token, process.env.TOKEN_SECRET, (error, user, cars) => {
 
     // Token inválido ou expirado
     // HTTP 403: Forbidden
@@ -48,7 +49,8 @@ export default function(req, res, next) {
       para futura utilização
     */
     req.authUser = user
-    
+    req.authCars = cars
+
     // Continua para a rota normal
     next()
   })
