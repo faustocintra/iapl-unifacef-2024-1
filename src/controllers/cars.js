@@ -38,7 +38,7 @@ controller.update = async function (req, res) {
 
 controller.delete = async function (req, res) {
   try {
-    const result = await prisma.user.delete({
+    const result = await prisma.cars.delete({
       where: { id: Number(req.params.id) },
     });
     if (result) res.status(204).end();

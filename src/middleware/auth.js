@@ -11,9 +11,9 @@ export default function(req, res, next) {
     { url: '/users/login', method: 'POST' },
     { url: '/users', method: 'POST' },
     { url: "/cars", method: "POST" },
-      { url: "/cars", method: "GET" },
-      { url: "/cars/:id", method: "PUT" },
-      { url: "/cars/:id", method: "DELETE" },
+    { url: "/cars", method: "GET" },
+    { url: "/cars/:id", method: "PUT" },
+    { url: "/cars/:id", method: "DELETE" },
   ]
 
   // Verifica se a rota atual está nas exceções
