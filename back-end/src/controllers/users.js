@@ -90,6 +90,7 @@ controller.delete = async function (req, res) {
 };
 
 controller.login = async function (req, res) {
+
   try {
     // busca o usuário pela username
     const user = await prisma.user.findUnique({

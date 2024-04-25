@@ -49,5 +49,4 @@ controller.delete = async function (req, res) {
   }
 };
 
-
 export default controller;
