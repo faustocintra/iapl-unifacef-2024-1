@@ -1,5 +1,8 @@
-import jwt from 'jsonwebtoken'
+import cryptr from '../lib/cryptr.js'
+import prisma from '../database/client.js'
+
 export default function(req, res, next) {
+
   // As rotas que eventualmente não necessitarem
   // de autenticação devem ser colocadas no
   // objeto abaixo
@@ -7,6 +10,7 @@ export default function(req, res, next) {
     { url: '/users/login', method: 'POST' },
     { url: '/users', method: 'POST' }
   ]
+
   // Verifica se a rota atual está nas exceções
   // de bypassRoutes. Caso esteja, passa para o
   // próximo middleware sem verificar a autenticação
@@ -17,71 +21,86 @@ export default function(req, res, next) {
       return
     }
   }
-
   
-  // Para todas as demais rotas, é necessário que o token tenha
-  // sido enviado no cabeçalho Authorization
-  const authHeader = req.headers['authorization']
+  // Para todas as demais rotas, é necessário que a sessid tenha
+  // sido enviada em um cookie ou no cabeçalho Authorization
 
-  // O header não existe, o token não foi passado:
-  // HTTP 403: Forbidden
-  if(! authHeader) {
-    console.error('ERRO: não autenticado por falta de token')
-    return res.status(403).end()
-  }
-  // sido enviado em um cookie ou no cabeçalho Authorization
+  let cryptoSessid = null
 
-  let token = null
+  // console.log({ COOKIE: req.cookies[process.env.AUTH_COOKIE_NAME] })
 
-  console.log({ COOKIE: req.cookies[process.env.AUTH_COOKIE_NAME] })
+  // 1. PROCURA A SESSID EM UM COOKIE
+  cryptoSessid = req.cookies[process.env.AUTH_COOKIE_NAME]
 
-  // 1. PROCURA O TOKEN EM UM COOKIE
-  token = req.cookies[process.env.AUTH_COOKIE_NAME]
-
-  // 2. SE O TOKEN NÃO FOI ENCONTRADO NO COOKIE, PROCURA NO HEADER
+  // 2. SE A SESSID NÃO FOI ENCONTRADA NO COOKIE, PROCURA NO HEADER
   // DE AUTORIZAÇÃO
-  if(! token) {
+  if(! cryptoSessid) {
     const authHeader = req.headers['authorization']
 
-  // O header Authorization é enviado como uma string
-  // Bearer: XXXX
-  // onde XXXX é o token. Portanto, para extrair o token,
-  // precisamos recortar a string no ponto onde há um espaço
-  // e pegar somente a a segunda parte
-  const [ , token] = authHeader.split(' ')
-    // O header não existe, o token não foi passado:
+    // O header não existe, a sessid não foi passada:
     // HTTP 403: Forbidden
     if(! authHeader) {
       console.error('ERRO: não autenticado por falta de cookie ou cabeçalho de autorização')
       return res.status(403).end()
     }
-
+  
     // O header Authorization é enviado como uma string
     // Bearer: XXXX
     // onde XXXX é o token. Portanto, para extrair o token,
     // precisamos recortar a string no ponto onde há um espaço
     // e pegar somente a a segunda parte
     const [ , _token] = authHeader.split(' ')
+    
+    cryptoSessid = _token
+  }
 
-    token = _token
+  // VALIDA A SESSSID
+  let sessid
+  
+  // Tenta descriptografar a sessid
+  try {
+    sessid = cryptr.decrypt(cryptoSessid)
+  }
+  catch {
+    // Caso ocorra algum erro com a decriptografia da sessid,
+    // enviamos HTTP 403: Forbidden
+    console.error('ERRO: não autenticado por falha na decodificação da sessid')
+    return res.status(403).end()
+  }
+
+  // Buscamos as informações da sessão no banco de dados
+  let session
+  try {
+    session = prisma.session.findUniqueOrThrow({
+      where: { sessid }
+    })
+  }
+  catch {
+    // Caso ocorra algum erro com a recuperação das informações da sessão,
+    // enviamos HTTP 403: Forbidden
+    console.error('ERRO: não autenticado por erro na recuperação das informações da sessão')
+    return res.status(403).end()
   }
 
   // Valida o token
-  jwt.verify(token, process.env.TOKEN_SECRET, (error, user) => {
-    // Token inválido ou expirado
-    // HTTP 403: Forbidden
-    if(error) {
-      console.error('ERRO: token inválido ou expirado')
-      return res.status(403).end()
-    }
-    /*
-      Se chegamos até aqui, o token está OK e temos as informações
-      do usuário logado no parâmetro 'user'. Vamos guardá-lo no 'req'
-      para futura utilização
-    */
-    req.authUser = user
+  // jwt.verify(cryptoSessid, process.env.TOKEN_SECRET, (error, user) => {
+
+  //   // Token inválido ou expirado
+  //   // HTTP 403: Forbidden
+  //   if(error) {
+  //     console.error('ERRO: token inválido ou expirado')
+  //     return res.status(403).end()
+  //   }
+
+  //   /*
+  //     Se chegamos até aqui, o token está OK e temos as informações
+  //     do usuário logado no parâmetro 'user'. Vamos guardá-lo no 'req'
+  //     para futura utilização
+  //   */
+  //   req.authUser = user
     
-    // Continua para a rota normal
-    next()
-  })
+  //   // Continua para a rota normal
+  //   next()
+  // })
+
 }
