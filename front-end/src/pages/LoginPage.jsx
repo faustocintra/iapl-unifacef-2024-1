@@ -1,68 +1,99 @@
-import React from 'react'
-import Typography from '@mui/material/Typography'
-import TextField from '@mui/material/TextField'
-import Button from '@mui/material/Button'
+import * as React from 'react';
+import Button from '@mui/material/Button';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import myfetch from '../lib/myfetch'
-import { useNavigate } from 'react-router-dom'
+import Typography from '@mui/material/Typography'
 
-export default function LoginPage() {
-  const [username, setUsername] = React.useState('')
-  const [password, setPassword] = React.useState('')
+export default function MainMenu() {
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
 
+  const [authUser, setAuthUser] = React.useState(null)
+  const location = useLocation()
   const navigate = useNavigate()
 
-  async function handleFormSubmit(event) {
-    event.preventDefault()    // Evita o recarregamento da página
-
+  React.useEffect(() => {
+    fetchAuthUser()
+  }, [location])
+  async function fetchAuthUser() {
     try {
-      // Dispara uma requisição para o back-end
-      const result = await myfetch.post('/users/login', { username, password })
-
-      // Se o login tiver sido bem-sucedido, o token estará no result
-      // Vamos armazená-lo (POR ENQUANTO) no localStorage (INSEGURO!)
-      window.localStorage.setItem(import.meta.env.VITE_AUTH_TOKEN_NAME, result.token)
-
-      // Vai para a página inicial
-      navigate('/')
+      const result = await myfetch.get('/users/me')
+      setAuthUser(result)
     }
     catch(error) {
-      alert(error.message)
+      console.error(error)
+      setAuthUser(null)
     }
   }
 
-  return (
-    <>
-      <Typography variant="h2" gutterBottom>
-        Autentique-se
-      </Typography>
-      <form>
-      <form onSubmit={handleFormSubmit}>
+  async function handleLogoutButtonClick() {
+    if(confirm('Deseja realmente sair?')) {
+      try {
+        await myfetch.post('/users/logout')
+        navigate('/login')
+      }
+      catch(error) {
+        console.error(error)
+      }
+    }
+  }
 
-        <TextField 
-          label="Usuário" 
-          variant="filled" 
-          value={username}
-          fullWidth
-          sx={{ mb: 2 }}
-          onChange={event => setUsername(event.target.value)}
-        />
-        <TextField 
-          label="Senha" 
-          variant="filled"
-          type="password" 
-          value={password}
-          fullWidth
-          sx={{ mb: 2 }}
-          onChange={event => setPassword(event.target.value)}
-        />
-        <Button 
-          variant="contained"
-          type="submit"
-          fullWidth
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  return (
+    <div>
+      <Button
+        id="basic-button"
+        aria-controls={open ? 'basic-menu' : undefined}
+        aria-haspopup="true"
+        aria-expanded={open ? 'true' : undefined}
+        onClick={handleClick}
+      >
+        Menu
+      </Button>
+      <Menu
+        id="basic-menu"
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        MenuListProps={{
+          'aria-labelledby': 'basic-button',
+        }}
+      >
+        <MenuItem
+          component={Link}
+          to="/"
+          onClick={handleClose}
         >
-          Enviar
-        </Button>
-      </form>
-    </>
-  )
+          Página inicial
+        </MenuItem>
+        <MenuItem
+          component={Link}
+          to="/users"
+          onClick={handleClose}
+          divider
+        >
+          Relação de usuários
+        </MenuItem>
+      </Menu>
+      {
+        authUser ?
+          <>
+            <Typography variant="body" sx={{ ml: 3, mr: 1 }}>
+              {authUser.fullname}
+            </Typography>
+            <Button>Sair</Button>
+            <Button onClick={handleLogoutButtonClick}>Sair</Button>
+          </>
+        : <Button component={Link} to="/login">Entrar</Button>
+      }
+    </div>
+  );
 }
