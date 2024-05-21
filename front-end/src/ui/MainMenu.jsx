@@ -2,7 +2,7 @@ import * as React from 'react';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import myfetch from '../lib/myfetch'
 import Typography from '@mui/material/Typography'
 
@@ -12,7 +12,6 @@ export default function MainMenu() {
 
   const [authUser, setAuthUser] = React.useState(null)
   const location = useLocation()
-  const navigate = useNavigate()
 
   React.useEffect(() => {
     fetchAuthUser()
@@ -26,18 +25,6 @@ export default function MainMenu() {
     catch(error) {
       console.error(error)
       setAuthUser(null)
-    }
-  }
-
-  async function handleLogoutButtonClick() {
-    if(confirm('Deseja realmente sair?')) {
-      try {
-        await myfetch.post('/users/logout')
-        navigate('/login')
-      }
-      catch(error) {
-        console.error(error)
-      }
     }
   }
 
@@ -93,7 +80,7 @@ export default function MainMenu() {
             <Typography variant="body" sx={{ ml: 3, mr: 1 }}>
               {authUser.fullname}
             </Typography>
-            <Button onClick={handleLogoutButtonClick}>Sair</Button>
+            <Button>Sair</Button>
           </>
         : <Button component={Link} to="/login">Entrar</Button>
       }
