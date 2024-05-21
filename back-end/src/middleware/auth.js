@@ -1,5 +1,4 @@
-import cryptr from '../lib/cryptr.js'
-import prisma from '../database/client.js'
+import jwt from 'jsonwebtoken'
 
 export default function(req, res, next) {
 
@@ -22,22 +21,22 @@ export default function(req, res, next) {
     }
   }
   
-  // Para todas as demais rotas, é necessário que a sessid tenha
-  // sido enviada em um cookie ou no cabeçalho Authorization
+  // Para todas as demais rotas, é necessário que o token tenha
+  // sido enviado em um cookie ou no cabeçalho Authorization
 
-  let cryptoSessid = null
+  let token = null
 
-  // console.log({ COOKIE: req.cookies[process.env.AUTH_COOKIE_NAME] })
+  console.log({ COOKIE: req.cookies[process.env.AUTH_COOKIE_NAME] })
 
-  // 1. PROCURA A SESSID EM UM COOKIE
-  cryptoSessid = req.cookies[process.env.AUTH_COOKIE_NAME]
+  // 1. PROCURA O TOKEN EM UM COOKIE
+  token = req.cookies[process.env.AUTH_COOKIE_NAME]
 
-  // 2. SE A SESSID NÃO FOI ENCONTRADA NO COOKIE, PROCURA NO HEADER
+  // 2. SE O TOKEN NÃO FOI ENCONTRADO NO COOKIE, PROCURA NO HEADER
   // DE AUTORIZAÇÃO
-  if(! cryptoSessid) {
+  if(! token) {
     const authHeader = req.headers['authorization']
 
-    // O header não existe, a sessid não foi passada:
+    // O header não existe, o token não foi passado:
     // HTTP 403: Forbidden
     if(! authHeader) {
       console.error('ERRO: não autenticado por falta de cookie ou cabeçalho de autorização')
@@ -51,56 +50,28 @@ export default function(req, res, next) {
     // e pegar somente a a segunda parte
     const [ , _token] = authHeader.split(' ')
     
-    cryptoSessid = _token
-  }
-
-  // VALIDA A SESSSID
-  let sessid
-  
-  // Tenta descriptografar a sessid
-  try {
-    sessid = cryptr.decrypt(cryptoSessid)
-  }
-  catch {
-    // Caso ocorra algum erro com a decriptografia da sessid,
-    // enviamos HTTP 403: Forbidden
-    console.error('ERRO: não autenticado por falha na decodificação da sessid')
-    return res.status(403).end()
-  }
-
-  // Buscamos as informações da sessão no banco de dados
-  let session
-  try {
-    session = prisma.session.findUniqueOrThrow({
-      where: { sessid }
-    })
-  }
-  catch {
-    // Caso ocorra algum erro com a recuperação das informações da sessão,
-    // enviamos HTTP 403: Forbidden
-    console.error('ERRO: não autenticado por erro na recuperação das informações da sessão')
-    return res.status(403).end()
+    token = _token
   }
 
   // Valida o token
-  // jwt.verify(cryptoSessid, process.env.TOKEN_SECRET, (error, user) => {
+  jwt.verify(token, process.env.TOKEN_SECRET, (error, user) => {
 
-  //   // Token inválido ou expirado
-  //   // HTTP 403: Forbidden
-  //   if(error) {
-  //     console.error('ERRO: token inválido ou expirado')
-  //     return res.status(403).end()
-  //   }
+    // Token inválido ou expirado
+    // HTTP 403: Forbidden
+    if(error) {
+      console.error('ERRO: token inválido ou expirado')
+      return res.status(403).end()
+    }
 
-  //   /*
-  //     Se chegamos até aqui, o token está OK e temos as informações
-  //     do usuário logado no parâmetro 'user'. Vamos guardá-lo no 'req'
-  //     para futura utilização
-  //   */
-  //   req.authUser = user
+    /*
+      Se chegamos até aqui, o token está OK e temos as informações
+      do usuário logado no parâmetro 'user'. Vamos guardá-lo no 'req'
+      para futura utilização
+    */
+    req.authUser = user
     
-  //   // Continua para a rota normal
-  //   next()
-  // })
+    // Continua para a rota normal
+    next()
+  })
 
 }
