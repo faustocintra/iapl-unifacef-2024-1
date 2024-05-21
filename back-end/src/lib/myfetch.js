@@ -57,11 +57,7 @@ function getErrorDescription(response) {
 
 myfetch.post = async function(path, body) {
   const response = await fetch(baseUrl + path, getOptions(body, 'POST'))
-  if(response.ok) {
-    const isJson = response.headers.get('content-type')?.includes('application/json')
-    if(isJson) return response.json()
-    else return true
-  }
+  if(response.ok) return response.json()
   else throw new HttpError(response.status, getErrorDescription(response))
 }
 
