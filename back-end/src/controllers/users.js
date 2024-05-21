@@ -1,6 +1,7 @@
 import prisma from '../database/client.js'
 import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
+import { uuidv7 } from 'uuidv7'
+import cryptr from '../lib/cryptr.js'
 
 const controller = {}     // Objeto vazio
 
@@ -106,6 +107,7 @@ controller.delete = async function (req, res) {
 }
 
 controller.login = async function(req, res) {
+
   try {
     // Busca o usuário pelo username
     const user = await prisma.user.findUnique({
@@ -119,15 +121,25 @@ controller.login = async function(req, res) {
     // Se a senha não confere ~> HTTP 401: Unauthorized
     if(! passwordMatches) return res.status(401).end()
 
-    // Formamos o token de autenticação para enviar ao front-end
-    const token = jwt.sign(
-      user,   // O token contém as informações do usuário logado
-      process.env.TOKEN_SECRET,   // Senha de criptografia do token
-      { expiresIn: '24h' }        // Prazo de validade do token
-    )
+    // Cria a sessão para o usuário autenticado
+    const sessid = uuidv7()   // Geração de um UUID para a sessão
+    await prisma.session.create({ data: { sessid, user_id: user.id } })
+
+    // Forma o cookie para enviar ao front-end
+    // O sessid é incluído no cookie de forma criptografada
+    res.cookie(process.env.AUTH_COOKIE_NAME, cryptr.encrypt(sessid), {
+      httpOnly: true,   // O cookie ficará inacessível para JS no front-end
+      secure: true,
+      sameSite: 'None',
+      path: '/',
+      maxAge: 24 * 60 * 60 * 1000   // 24 horas
+    })
 
     // Envia o token na resposta com código HTTP 200: OK (implícito)
-    res.send({token})
+    //res.send({token})
+
+    // HTTP 204: No Content
+    res.status(204).end()
 
   }
   catch(error) {
@@ -135,6 +147,22 @@ controller.login = async function(req, res) {
     // HTTP 500: Internal Server Error
     res.status(500).end()
   }
+}
+
+controller.me = function(req, res) {
+
+  // Se o usuário autenticado estiver salvo em req,
+  // retorna-o
+  if(req.authUser) res.send(req.authUser)
+
+  // Senão, retorna HTTP 401: Unauthorized
+  else res.status(401).end()
+}
+
+controller.logout = function(req, res) {
+  // Apaga o cookie que armazena o token de autorização
+  res.clearCookie(process.env.AUTH_COOKIE_NAME)
+  res.send(204).end()
 }
 
 export default controller
