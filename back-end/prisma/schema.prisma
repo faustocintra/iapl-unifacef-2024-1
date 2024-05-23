@@ -18,6 +18,7 @@ model User {
   fullname    String        // Nome completo do usuário
   username    String        @unique // Nome de usuário
   password    String        // Senha
+  is_admin    Boolean       @default(false)
   sessions    Session[]
 }
 
