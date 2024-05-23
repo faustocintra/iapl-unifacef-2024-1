@@ -137,4 +137,13 @@ controller.login = async function(req, res) {
   }
 }
 
+controller.me = function(req, res) {
+  // Se o usuario autenticado estivar salvo em req,
+  //Retorna
+  if(req.authUser) req.send(authUser)
+
+  // Senão, Retorna o HTTP 401: unathorized
+  else res.status(401).end()
+}
+
 export default controller
