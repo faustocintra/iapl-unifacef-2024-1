@@ -19,6 +19,7 @@ model User {
   username  String  @unique // Nome do usuário
   password  String  // Senha
   is_admin  Boolean @default(false)
+  sessions  Session[]
 }
 
 model Cars {
@@ -30,4 +31,11 @@ model Cars {
   year        Int
   imported    Boolean @default(false)
   plates      String  @unique 
+}
+
+model Session {
+  sessid      String    @id 
+  user_id     Int   
+  user        User      @relation(fields: [user_id], references: [id])    
+  start_time  DateTime  @default(now())
 }
