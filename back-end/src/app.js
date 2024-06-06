@@ -12,6 +12,12 @@ import indexRouter from "./routes/index.js";
 
 const app = express();
 
+import cors from 'cors'
+app.use(cors({
+  origin: process.env.FRONT_END_URL.split(','),
+  credentials: true
+}))
+
 app.use(logger("dev"));
 app.use(json());
 app.use(urlencoded({ extended: false }));
@@ -21,16 +27,14 @@ app.use("/", indexRouter);
 //app.use("/users", usersRouter);
 
 // MIDDLEWARE DE AUTENTICAÇÃO
-// import auth from './middleware/auth.js'
-// app.use(auth)
+import auth from './middleware/auth.js'
+app.use(auth)
 
 /*************************************************
  * ROTAS
- *************************************************/
+ ************************************************/
 
-// import usersRouter from './routes/users.js'
-import carsRouter from './routes/cars.js'
-// app.use('/users', usersRouter)
-app.use('/cars', carsRouter)
-
+import usersRouter from './routes/users.js'
+app.use('/users', usersRouter)
+ 
 export default app;
