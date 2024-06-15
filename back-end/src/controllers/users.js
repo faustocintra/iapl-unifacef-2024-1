@@ -127,7 +127,19 @@ controller.login = async function(req, res) {
     )
 
     // Envia o token na resposta com código HTTP 200: OK (implícito)
-    res.send({token})
+    // Forma o cookie para enviar ao front-end
+    res.cookie(process.env.AUTH_COOKIE_NAME, token, {
+      httpOnly: true,   // O cookie ficará inacessível para JS no front-end
+      secure: true,
+      sameSite: 'None',
+      path: '/',
+      maxAge: 24 * 60 * 60 * 1000   // 24 horas
+    })
+
+    // Envia o token na resposta com código HTTP 200: OK (implícito)
+    //res.send({token})
+
+    // HTTP 204: No Content
 
   }
   catch(error) {
@@ -145,6 +157,12 @@ controller.me = function(req, res) {
 
   // Senão, retorna HTTP 401: Unauthorized
   else res.status(401).end()
+}
+
+controller.logout = function(req, res) {
+  // Apaga o cookie que armazena o token de autorização
+  res.clearCookie(process.env.AUTH_COOKIE_NAME)
+  res.send(204).end()
 }
 
 export default controller
