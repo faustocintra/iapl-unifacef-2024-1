@@ -1,8 +1,6 @@
 import prisma from '../database/client.js'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import { uuidv7 } from 'uuidv7'
-import cryptr from '../lib/cryptr.js'
 
 const controller = {}     // Objeto vazio
 
@@ -108,6 +106,7 @@ controller.delete = async function (req, res) {
 }
 
 controller.login = async function(req, res) {
+
   try {
     // Busca o usuário pelo username
     const user = await prisma.user.findUnique({
@@ -121,13 +120,15 @@ controller.login = async function(req, res) {
     // Se a senha não confere ~> HTTP 401: Unauthorized
     if(! passwordMatches) return res.status(401).end()
 
-    // Cria a sessão para o usuário autenticado
-    const sessid = uuidv7()   // Geração de um UUID para a sessão
-    await prisma.session.create({ data: { sessid, user_id: user.id } })
-    
+    // Formamos o token de autenticação para enviar ao front-end
+    const token = jwt.sign(
+      user,   // O token contém as informações do usuário logado
+      process.env.TOKEN_SECRET,   // Senha de criptografia do token
+      { expiresIn: '24h' }        // Prazo de validade do token
+    )
+
     // Forma o cookie para enviar ao front-end
-    // O sessid é incluído no cookie de forma criptografada
-    res.cookie(process.env.AUTH_COOKIE_NAME, cryptr.encrypt(sessid), {
+    res.cookie(process.env.AUTH_COOKIE_NAME, token, {
       httpOnly: true,   // O cookie ficará inacessível para JS no front-end
       secure: true,
       sameSite: 'None',
@@ -139,6 +140,7 @@ controller.login = async function(req, res) {
     //res.send({token})
 
     // HTTP 204: No Content
+    res.status(204).end()
 
   }
   catch(error) {
