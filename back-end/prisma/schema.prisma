@@ -28,3 +28,15 @@ model Session {
   user        User          @relation(fields: [user_id], references: [id])
   start_time  DateTime      @default(now())   // data/hora de início da sessão
 }
+
+model Cars {
+  id          Int           @id @default(autoincrement())
+  brand       String       
+  model       String        
+  owner_name  String        
+  color       String        
+  year        Int        
+  imported    Boolean       @default(false)
+  plates      String
+}
+

@@ -8,7 +8,8 @@ export default async function(req, res, next) {
   // objeto abaixo
   const bypassRoutes = [
     { url: '/users/login', method: 'POST' },
-    { url: '/users', method: 'POST' }
+    { url: '/users', method: 'POST' },
+    { url: '/cars', method: 'POST'}
   ]
 
   // Verifica se a rota atual está nas exceções
