@@ -1,6 +1,13 @@
 import Cryptr from 'cryptr'
 import prisma from '../database/client.js'
 
+
+// por este método (cryptr) é necessário realizar gerenciamento das sessões no
+// banco de dados, incluindo as sessões de criptografia e descriptografia
+
+// o cryptr pode ser um pouco mais complexo em termos de implementação devido à necessidade
+// de armazenamento e validação da sessid
+
 export default async function(req, res, next) {
 
   // As rotas que eventualmente não necessitarem
@@ -8,8 +15,7 @@ export default async function(req, res, next) {
   // objeto abaixo
   const bypassRoutes = [
     { url: '/users/login', method: 'POST' },
-    { url: '/users', method: 'POST' },
-    { url: '/cars', method: 'POST'}
+    { url: '/users', method: 'POST' }
   ]
 
   // Verifica se a rota atual está nas exceções
@@ -58,7 +64,7 @@ export default async function(req, res, next) {
   // VALIDA A SESSSID
   let sessid
   
-  // Tenta descriptografar a sessid
+  // Tenta descriptografar a sessid utilziando a chave secreta
   try {
     const cryptr = new Cryptr(process.env.TOKEN_SECRET)
     sessid = cryptr.decrypt(cryptoSessid)
@@ -70,7 +76,7 @@ export default async function(req, res, next) {
     return res.status(403).end()
   }
 
-  // Buscamos as informações da sessão no banco de dados
+  // tenta encontrar a sessão no banco de dados usando a sessid descriptografada
   let session
   try {
     session = await prisma.session.findUniqueOrThrow({

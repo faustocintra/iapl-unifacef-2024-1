@@ -1,5 +1,15 @@
 import jwt from 'jsonwebtoken'
 
+// neste método é utilizado o pacote jsonwebtoken para criar e verificar tokens JWT
+// sem a necessidade de armazenar sessões no servidor.
+
+// o token é armazenado nos cookies ou no header authorization
+
+// aqui o token é validade apenas com a chave secreta, sem a necessidade de consulta
+// ao banco de dados para cada requisição
+
+
+
 export default function(req, res, next) {
 
   // As rotas que eventualmente não necessitarem
@@ -51,9 +61,16 @@ export default function(req, res, next) {
     const [ , _token] = authHeader.split(' ')
     
     token = _token
+    // no caso de autenticação por sessão aqui seria passado o sessid criptografado
+    // no lugar do token
+
   }
 
   // Valida o token
+  // a validação no método por sessão seria feita declarando o sessid como variável
+  // descriptografando-a utilizando a chave secreta e consultando no banco de dados
+  // para obter as informações da sessão
+
   jwt.verify(token, process.env.TOKEN_SECRET, (error, user) => {
 
     // Token inválido ou expirado
@@ -67,6 +84,11 @@ export default function(req, res, next) {
       Se chegamos até aqui, o token está OK e temos as informações
       do usuário logado no parâmetro 'user'. Vamos guardá-lo no 'req'
       para futura utilização
+
+      se estivéssemos usando autenticação por sessão, 
+      estaríamos armazenando e gerenciando o estado da sessão no servidor,
+      e o acesso do usuário seria validado por uma identificação única 
+      associada à sessão ativa.
     */
     req.authUser = user
     
