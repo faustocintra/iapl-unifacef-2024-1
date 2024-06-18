@@ -3,163 +3,162 @@ import bcrypt from 'bcrypt'
 import { uuidv7 } from 'uuidv7'
 import Cryptr from 'cryptr'
 
-const controller = {}     // Objeto vazio
+const controller = {}     // Objeto vazio para armazenar os métodos
 
+//Cira um novo usuário
 controller.create = async function(req, res) {
   try {
-
-    // Criptografando a senha
+    // Criptografando a senha antes de salvar no banco de dados
     req.body.password = await bcrypt.hash(req.body.password, 12)
 
+    // Criando um novo usuário no banco de dados com os dados recebidos
     await prisma.user.create({ data: req.body })
 
-    // HTTP 201: Created
+    // Retorna HTTP 201: Created
     res.status(201).end()
   }
   catch(error) {
     console.error(error)
-    // HTTP 500: Internal Server Error
+    // Retorna HTTP 500: Internal Server Error se houver algum erro
     res.status(500).end()
   }
 }
 
+// Recupera todos os usuários
 controller.retrieveAll = async function(req, res) {
   try {
     const result = await prisma.user.findMany()
 
-    // Deleta o campo "password", para não ser enviado ao front-end
+    // Remove o campo "password" dos usuários antes de enviar para o front-end
     for(let user of result) {
       if(user.password) delete user.password
     }
 
-    // HTTP 200: OK (implícito)
+    // Retorna HTTP 200: OK (implícito)
     res.send(result)
   }
   catch(error) {
     console.error(error)
-    // HTTP 500: Internal Server Error
+    // Retorna HTTP 500: Internal Server Error se houver algum erro
     res.status(500).end()
   }
 }
 
+// Recupera um único usuário pelo ID
 controller.retrieveOne = async function (req, res) {
   try {
     const result = await prisma.user.findUnique({
       where: { id: Number(req.params.id)}
     })
 
-    // Deleta o campo "password", para não ser enviado ao front-end
+    // Remove o campo "password" do usuário antes de enviar para o front-end
     if(result.password) delete result.password
 
-    // Encontrou: retorna HTTP 200: OK (implícito)
+    // Retorna o usuário encontrado com HTTP 200: OK (implícito)
     if(result) res.send(result)
-    // Não encontrou: retorna HTTP 404: Not Found
+    // não encontrar o usuário, retorna HTTP 404: Not Found
     else res.status(404).end()
   }
   catch(error) {
     console.error(error)
-    // HTTP 500: Internal Server Error
+    // Retorna HTTP 500: Internal Server Error se houver algum erro
     res.status(500).end()
   }
 }
 
+// Atualiza um usuário
 controller.update = async function (req, res) {
   try {
-
-    // Criptografando o campo password caso o valor tenha sido passado
+    // Criptogra a senha se ela foi passada no corpo da requisição
     if(req.body.password) {
       req.body.password = await bcrypt.hash(req.body.password, 12)
     }
 
+    // Atualiza o usuário no banco de dados
     const result = await prisma.user.update({
       where: { id: Number(req.params.id) },
       data: req.body
     })
 
-    // Encontrou e atualizou ~> HTTP 204: No Content
+    // encontrar e atualizar, retorna HTTP 204: No Content
     if(result) res.status(204).end()
-    // Não encontrou (e não atualizou) ~> HTTP 404: Not Found
+    // não encontrar, retorna HTTP 404: Not Found
     else res.status(404).end()
   }
   catch(error) {
     console.error(error)
-    // HTTP 500: Internal Server Error
+    // Retorna HTTP 500: Internal Server Error se houver algum erro
     res.status(500).end()
   }
 }
 
+//Deletaa um usuário
 controller.delete = async function (req, res) {
   try {
     const result = await prisma.user.delete({
       where: { id: Number(req.params.id) }
     })
 
-    // Encontrou e excluiu ~> HTTP 204: No Content
+    // deletou, retorna HTTP 204: No Content
     if(result) res.status(204).end()
-    // Não encontrou (e não excluiu) ~> HTTP 404: Not Found
+    // retorna HTTP 404: Not Found
     else res.status(404).end()
   }
   catch(error) {
     console.error(error)
-    // HTTP 500: Internal Server Error
+    // Retorna HTTP 500: Internal Server Error se houver algum erro
     res.status(500).end()
   }
 }
 
+// Login de um usuário
 controller.login = async function(req, res) {
-
   try {
     // Busca o usuário pelo username
     const user = await prisma.user.findUnique({
       where: { username: req.body.username }
     })
-    // Se o usuário não for encontrado, retorna
-    // HTTP 401: Unauthorized
+
+    // usuário não for encontrado, retorna HTTP 401: Unauthorized
     if(! user) return res.status(401).end()
-    // Usuário encontrado, vamos conferir a senha
+
+    // Verifica se a senha está correta
     const passwordMatches = await bcrypt.compare(req.body.password, user.password)
-    // Se a senha não confere ~> HTTP 401: Unauthorized
     if(! passwordMatches) return res.status(401).end()
 
-    // Cria a sessão para o usuário autenticado
+    // Cria uma sessão para o usuário autenticado
     const sessid = uuidv7()   // Geração de um UUID para a sessão
     await prisma.session.create({ data: { sessid, user_id: user.id } })
 
-    // Forma o cookie para enviar ao front-end
-    // O sessid é incluído no cookie de forma criptografada
+    // Cria um cookie para enviar ao front-end com o ID da sessão
     const cryptr = new Cryptr(process.env.TOKEN_SECRET)
     res.cookie(process.env.AUTH_COOKIE_NAME, cryptr.encrypt(sessid), {
-      httpOnly: true,   // O cookie ficará inacessível para JS no front-end
+      httpOnly: true, 
       secure: true,
       sameSite: 'None',
       path: '/',
       maxAge: 24 * 60 * 60 * 1000   // 24 horas
     })
 
-    // Envia o token na resposta com código HTTP 200: OK (implícito)
-    //res.send({token})
-
-    // HTTP 204: No Content
+    // Retorna HTTP 204: No Content
     res.status(204).end()
-
   }
   catch(error) {
     console.error(error)
-    // HTTP 500: Internal Server Error
+    // Retorna HTTP 500: Internal Server Error se houver algum erro
     res.status(500).end()
   }
 }
 
+// Obter informações do usuário autenticado
 controller.me = function(req, res) {
-
-  // Se o usuário autenticado estiver salvo em req,
-  // retorna-o
+  // usuário autenticado estiver salvo em req.authUser, retorna-o
   if(req.authUser) res.send(req.authUser)
-
-  // Senão, retorna HTTP 401: Unauthorized
+  // retorna HTTP 401: Unauthorized
   else res.status(401).end()
 }
 
+// Logout do usuário
 controller.logout = function(req, res) {
   // Apaga o cookie que armazena o token de autorização
   res.clearCookie(process.env.AUTH_COOKIE_NAME)

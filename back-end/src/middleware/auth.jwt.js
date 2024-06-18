@@ -1,73 +1,59 @@
-import jwt from 'jsonwebtoken'
+import jwt from 'jsonwebtoken'  // Importa a biblioteca jsonwebtoken para manipulação de tokens JWT
 
 export default function(req, res, next) {
 
-  // As rotas que eventualmente não necessitarem
-  // de autenticação devem ser colocadas no
-  // objeto abaixo
+  // Define rotas que não necessitam de autenticação
   const bypassRoutes = [
     { url: '/users/login', method: 'POST' },
     { url: '/users', method: 'POST' }
   ]
 
-  // Verifica se a rota atual está nas exceções
-  // de bypassRoutes. Caso esteja, passa para o
-  // próximo middleware sem verificar a autenticação
+  // Verifica se a rota atual está nas exceções de bypassRoutes
   for(let route of bypassRoutes) {
     if(route.url === req.url && route.method === req.method) {
       console.log(`Rota ${route.url}, método ${route.method} não autenticados por exceção`)
-      next()
+      next()  // Passa para o próximo middleware sem verificar a autenticação
       return
     }
   }
   
-  // Para todas as demais rotas, é necessário que o token tenha
-  // sido enviado em um cookie ou no cabeçalho Authorization
-
+  // Para todas as outras rotas, a autenticação é necessária
   let token = null
 
   console.log({ COOKIE: req.cookies[process.env.AUTH_COOKIE_NAME] })
 
-  // 1. PROCURA O TOKEN EM UM COOKIE
+  // Tenta obter o token do cookie
   token = req.cookies[process.env.AUTH_COOKIE_NAME]
 
-  // 2. SE O TOKEN NÃO FOI ENCONTRADO NO COOKIE, PROCURA NO HEADER
-  // DE AUTORIZAÇÃO
-  if(! token) {
+  // token não foi encontrado no cookie, procura no header Authorization
+  if(!token) {
     const authHeader = req.headers['authorization']
 
-    // O header não existe, o token não foi passado:
-    // HTTP 403: Forbidden
-    if(! authHeader) {
+    // header não existe, o token não foi passado: HTTP 403: Forbidden
+    if(!authHeader) {
       console.error('ERRO: não autenticado por falta de cookie ou cabeçalho de autorização')
       return res.status(403).end()
     }
   
-    // O header Authorization é enviado como uma string
-    // Bearer: XXXX
+    // Extrai o token do header Authorization
+    // O header Authorization é enviado como uma string "Bearer XXXX"
     // onde XXXX é o token. Portanto, para extrair o token,
     // precisamos recortar a string no ponto onde há um espaço
-    // e pegar somente a a segunda parte
+    // e pegar somente a segunda parte
     const [ , _token] = authHeader.split(' ')
-    
     token = _token
   }
 
   // Valida o token
   jwt.verify(token, process.env.TOKEN_SECRET, (error, user) => {
 
-    // Token inválido ou expirado
-    // HTTP 403: Forbidden
+    // Token inválido ou expirado: HTTP 403: Forbidden
     if(error) {
       console.error('ERRO: token inválido ou expirado')
       return res.status(403).end()
     }
 
-    /*
-      Se chegamos até aqui, o token está OK e temos as informações
-      do usuário logado no parâmetro 'user'. Vamos guardá-lo no 'req'
-      para futura utilização
-    */
+    //  token está OK e temos as informações do usuário logado no parâmetro 'user' guarda no 'req'
     req.authUser = user
     
     // Continua para a rota normal
@@ -75,3 +61,6 @@ export default function(req, res, next) {
   })
 
 }
+
+
+/*A diferença entre tokens de sessão e tokens JWT (JSON Web Tokens) reside principalmente em como eles são construídos, usados ​​e armazenados. Ambos são mecanismos de autenticação e autorização em aplicações web, mas possuem características diferentes e são adequados para diferentes necessidades e cenários.*/

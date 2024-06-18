@@ -85,6 +85,14 @@ export default function MainMenu() {
           Relação de usuários
         </MenuItem>
 
+        <MenuItem
+          component={Link}
+          to="/cars"
+          onClick={handleClose}
+          divider
+        >
+          Relação de carros
+        </MenuItem>
       </Menu>
 
       {
