@@ -121,19 +121,19 @@ controller.login = async function(req, res) {
     // Se a senha não confere ~> HTTP 401: Unauthorized
     if(! passwordMatches) return res.status(401).end()
 
-    // Cria a sessão para o usuário autenticado
-    const sessid = uuidv7()   // Geração de um UUID para a sessão
+    // Após o usuário ser logado, será criado um token de sessão para que ele possa acessar as rotas protegidas
+    const sessid = uuidv7()   // Séra gerado um ID aleatório para a sessão do usuário
     await prisma.session.create({ data: { sessid, user_id: user.id } })
 
-    // Forma o cookie para enviar ao front-end
-    // O sessid é incluído no cookie de forma criptografada
+
+    // O sessid será criptografado antes de ser enviado
     const cryptr = new Cryptr(process.env.TOKEN_SECRET)
     res.cookie(process.env.AUTH_COOKIE_NAME, cryptr.encrypt(sessid), {
       httpOnly: true,   // O cookie ficará inacessível para JS no front-end
       secure: true,
       sameSite: 'None',
       path: '/',
-      maxAge: 24 * 60 * 60 * 1000   // 24 horas
+      maxAge: 24 * 60 * 60 * 1000   // A sessão do usuário durará 24 horas, ou até o usuário fazer logout
     })
 
     // Envia o token na resposta com código HTTP 200: OK (implícito)
