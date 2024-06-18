@@ -14,20 +14,17 @@ datasource db {
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  fullname String // Nome completo do usuário
-  username String  @unique // Nome de usuário
-  password String // Senha
-  is_admin Boolean @default(false)
+  id          Int           @id @default(autoincrement())
+  fullname    String        // Nome completo do usuário
+  username    String        @unique // Nome de usuário
+  password    String        // Senha
+  is_admin    Boolean       @default(false)
+  sessions    Session[]
 }
 
-model Cars {
-  id         Int     @id @default(autoincrement())
-  brand      String // Marca do carro
-  model      String // Modelo do carro
-  year       Int // Ano do carro
-  color      String // Cor do carro
-  ownwe_name String // Nome do proprietário
-  imported   Boolean // Se é importado
-  plate      String // Placa do carro
+model Session {
+  sessid      String        @id               // id da sessão
+  user_id     Int                             // id do usuário
+  user        User          @relation(fields: [user_id], references: [id])
+  start_time  DateTime      @default(now())   // data/hora de início da sessão
 }
