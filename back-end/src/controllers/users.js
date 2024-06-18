@@ -134,10 +134,16 @@ controller.login = async function(req, res) {
       sameSite: 'None',
       path: '/',
       maxAge: 24 * 60 * 60 * 1000   // 24 horas
-    })
+    },)
 
-    // Envia o token na resposta com código HTTP 200: OK (implícito)
-    //res.send({token})
+    // Adicionando o cookie sessionId
+    res.cookie('sessionId', cryptr.encrypt(sessid), {
+      httpOnly: true,   // O cookie ficará inacessível para JS no front-end
+      secure: true,
+      sameSite: 'None',
+      path: '/',
+      maxAge: 24 * 60 * 60 * 1000   // 24 horas
+    },)
 
     // HTTP 204: No Content
     res.status(204).end()
