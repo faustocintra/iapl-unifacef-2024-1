@@ -177,3 +177,5 @@ controller.logout = function(req, res) {
 }
 
 export default controller
+
+// A autenticação por token JWT emprega tokens assinados que estão guardados no navegador do usuário. Para sistemas que precisam escalar facilmente, esses tokens são usados para verificar quem está acessando cada pedido. A autenticação por sessão, por outro lado, emprega um identificador armazenado no navegador, que é utilizado pelo servidor para verificar se a sessão é válida. Embora forneça mais controle sobre o acesso, escalar sem comprometer o servidor pode ser um obstáculo. A maneira como você deve expandir ou proteger seu sistema determina a opção.
