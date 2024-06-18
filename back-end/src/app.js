@@ -15,7 +15,8 @@ const app = express();
 
 import cors from 'cors'
 app.use(cors({
-  origin: process.env.FRONT_END_URL.split(','),
+  //origin: process.env.FRONT_END_URL.split(','),
+  oringin: "*",
   credentials: true
 }))
 

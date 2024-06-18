@@ -102,4 +102,8 @@ export default async function(req, res, next) {
   // Continua para a rota normal
   next()
 
+// JWT (tipo um crachá com todas as infos):
+// - É um token que tem tudo que precisa pra te identificar.
+// - Não precisa que o servidor lembre de você toda hora, é mais independente.
+// - Dá pra usar em vários lugares, tipo um passe universal.
 }

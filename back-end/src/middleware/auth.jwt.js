@@ -20,7 +20,7 @@ export default function(req, res, next) {
       return
     }
   }
-
+  
   // Para todas as demais rotas, é necessário que o token tenha
   // sido enviado em um cookie ou no cabeçalho Authorization
 
@@ -42,14 +42,14 @@ export default function(req, res, next) {
       console.error('ERRO: não autenticado por falta de cookie ou cabeçalho de autorização')
       return res.status(403).end()
     }
-
+  
     // O header Authorization é enviado como uma string
     // Bearer: XXXX
     // onde XXXX é o token. Portanto, para extrair o token,
     // precisamos recortar a string no ponto onde há um espaço
     // e pegar somente a a segunda parte
     const [ , _token] = authHeader.split(' ')
-
+    
     token = _token
   }
 
@@ -69,9 +69,13 @@ export default function(req, res, next) {
       para futura utilização
     */
     req.authUser = user
-
+    
     // Continua para a rota normal
     next()
   })
 
+// Sessão (tipo um armário escolar):
+// - O servidor guarda suas coisas num cookie, como um armário pessoal.
+// - O servidor precisa saber quem é você toda vez que você "bate o ponto".
+// - Funciona só onde você tem seu armário, não dá pra levar pra outro canto.
 }
