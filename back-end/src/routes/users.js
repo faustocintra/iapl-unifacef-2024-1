@@ -1,3 +1,5 @@
+// direcionamento para todas as rotas que estao na constant "router"
+
 import { Router } from 'express'
 import controller from '../controllers/users.js'
 

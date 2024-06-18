@@ -1,3 +1,7 @@
+// diferentemente do auth.jwt.js, esse arquivo eh responsavel por procurar
+// o sessid em um cookie, e nao um token (JWT).
+
+
 import Cryptr from 'cryptr'
 import prisma from '../database/client.js'
 

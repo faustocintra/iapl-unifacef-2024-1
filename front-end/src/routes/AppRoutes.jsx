@@ -1,3 +1,5 @@
+// configura as rotas da aplicacao
+
 import React from 'react'
 import { Routes, Route } from 'react-router-dom'
 

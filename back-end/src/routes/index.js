@@ -1,3 +1,5 @@
+// direcionamento para a pagina raiz do projeto
+
 import { Router } from "express";
 const router = Router();
 

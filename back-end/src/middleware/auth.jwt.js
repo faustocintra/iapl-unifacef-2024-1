@@ -1,3 +1,6 @@
+// diferentemente do auth.js, esse arquivo eh responsavel por token JWT emm um cookie e nao em uma sessid.
+// os dois codigos quase funcionam do mesmo jeito, mas usam metodos diferentes.
+
 import jwt from 'jsonwebtoken'
 
 export default function(req, res, next) {
@@ -26,6 +29,7 @@ export default function(req, res, next) {
 
   let token = null
 
+  // imprime o cookie no console
   console.log({ COOKIE: req.cookies[process.env.AUTH_COOKIE_NAME] })
 
   // 1. PROCURA O TOKEN EM UM COOKIE

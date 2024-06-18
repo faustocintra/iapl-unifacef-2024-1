@@ -1,3 +1,6 @@
+// o metodo utilizado foi de utilizar tokens, o que é mais seguro, porém menos manuseável.
+
+
 import prisma from '../database/client.js'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'

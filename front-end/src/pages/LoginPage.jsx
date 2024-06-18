@@ -30,11 +30,14 @@ export default function LoginPage() {
     }
   }
 
+// cria um formulario para o usuario informar os dados, como o nome e a senha.
+// apos informado, executa a funcao handleFormSubmit para validar e salvar o token.
   return (
     <>
       <Typography variant="h2" gutterBottom>
         Autentique-se
       </Typography>
+      
       <form onSubmit={handleFormSubmit}>
         
         <TextField 

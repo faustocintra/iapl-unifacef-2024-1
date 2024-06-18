@@ -4,15 +4,18 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
+// permite acesso aos dados do projeto
 generator client {
   provider = "prisma-client-js"
 }
 
+// informa que o banco de dados que vamos utilizar eh o postgree, e conectar na URL passada como parametro.
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+// vai definir o o modelo da entidade User
 model User {
   id          Int           @id @default(autoincrement())
   fullname    String        // Nome completo do usuário
@@ -22,6 +25,7 @@ model User {
   sessions    Session[]
 }
 
+// vai definir o o modelo da entidade Session
 model Session {
   sessid      String        @id               // id da sessão
   user_id     Int                             // id do usuário

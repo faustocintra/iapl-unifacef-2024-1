@@ -1,3 +1,8 @@
+// o metodo utilizado foi de colocar o sessid no cookie, o que é menos seguro, porém mais manuseável.
+
+
+// importacao de modulos externos para o prisma, bcrypt, uuid e cryptr
+
 import prisma from '../database/client.js'
 import bcrypt from 'bcrypt'
 import { uuidv7 } from 'uuidv7'
@@ -5,6 +10,7 @@ import Cryptr from 'cryptr'
 
 const controller = {}     // Objeto vazio
 
+// cria um novo usuario, criptografa a senha e devolve uma mensagem de sucesso ou erro.
 controller.create = async function(req, res) {
   try {
 
@@ -23,6 +29,8 @@ controller.create = async function(req, res) {
   }
 }
 
+// retorna uma lista com todos os usuarios do banco, porem nao inclui a senha, por questoes de segurança e 
+// retorna uma mensagem caso sucesso ou erro
 controller.retrieveAll = async function(req, res) {
   try {
     const result = await prisma.user.findMany()
@@ -42,6 +50,7 @@ controller.retrieveAll = async function(req, res) {
   }
 }
 
+// retorna apenas um usuario, tambem nao mostrara a senha e retorna uma mensagem caso sucesso ou erro
 controller.retrieveOne = async function (req, res) {
   try {
     const result = await prisma.user.findUnique({
@@ -63,6 +72,7 @@ controller.retrieveOne = async function (req, res) {
   }
 }
 
+// vai atualizar os dados de um usuario (id como parametro) e retorna uma mensagem caso sucesso ou erro
 controller.update = async function (req, res) {
   try {
 
@@ -88,6 +98,7 @@ controller.update = async function (req, res) {
   }
 }
 
+//  exclui um usuario de acordo com o id (também passado como parametro) e novamente retorna uma mensagem caso sucesso ou erro.
 controller.delete = async function (req, res) {
   try {
     const result = await prisma.user.delete({
@@ -106,6 +117,8 @@ controller.delete = async function (req, res) {
   }
 }
 
+// vai fazer a verificação do usuario, buscando pelo nome, validando a senha e caso de certo, criara uma sessao para o usuario que
+// eh gravada no banco, apos isso a sessao eh incluida no cookie.
 controller.login = async function(req, res) {
 
   try {
