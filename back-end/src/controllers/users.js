@@ -1,6 +1,6 @@
 import prisma from '../database/client.js'
 import bcrypt from 'bcrypt'
-import { uuidv7 } from 'uuidv7'
+import { v7 as uuidv7 } from 'uuid';
 import Cryptr from 'cryptr'
 
 const controller = {}     // Objeto vazio
