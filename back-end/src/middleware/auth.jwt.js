@@ -75,3 +75,12 @@ export default function(req, res, next) {
   })
 
 }
+
+
+// Verifica a presença do token JWT em cookies ou no cabeçalho Authorization, caso existir,
+// valida o token e extrai as informações do usuário para req.authUser.
+// Em caso de token inválido ou expirado, retorna erro HTTP 403 - Forbidden.
+
+
+// Não mantém estado no servidor
+// O token JWT contém todas as informações necessárias e é validado a cada requisição.

@@ -167,3 +167,9 @@ controller.logout = function(req, res) {
 }
 
 export default controller
+
+// Gera uma sessid única, armazena no banco de dados e envia ao cliente em um cookie criptografado.
+// Ao fazer o logout, apaga-se o cookie que armazena o sessid.
+
+// Mantém estado no servidor, armazenando informações da sessão no banco de dados.
+// A sessid é verificada no banco de dados em cada requisição.

@@ -103,3 +103,11 @@ export default async function(req, res, next) {
   next()
 
 }
+
+// Verifica a presença da sessid em cookies ou no cabeçalho Authorization, se existir
+// descriptografa a sessid e verifica sua validade no banco de dados.
+// Caso a sessão for válida, armazena as informações do usuário em req.authUser.
+// Caso a sessão for inválida ou expirada retorna erro HTTP 403 - Forbidden .
+
+// Mantém estado no servidor, armazenando informações da sessão no banco de dados.
+// A sessid é verificada no banco de dados em cada requisição.

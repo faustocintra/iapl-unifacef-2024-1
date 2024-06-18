@@ -167,3 +167,9 @@ controller.logout = function(req, res) {
 }
 
 export default controller
+
+// Ao logar, é gerado e enviado um token JWT com validade de 24 horas ao cliente em um cookie após validar as credenciais
+// Ao fazer o logout, apaga-se o cookie que armazena o token JWT.
+
+// Não mantém estado no servidor
+// O token JWT contém todas as informações necessárias e é validado a cada requisição.
