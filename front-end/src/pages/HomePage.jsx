@@ -8,6 +8,7 @@ export default function HomePage() {
         Projeto Integração de aplicações
       </Typography>
       <p>Bem-vindo(a) ao projeto Integração de Aplicações</p>
+
     </>
   )
 }

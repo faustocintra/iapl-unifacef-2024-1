@@ -13,19 +13,21 @@ export default function LoginPage() {
 
   async function handleFormSubmit(event) {
     event.preventDefault()    // Evita o recarregamento da página
-    
+
     try {
       // Dispara uma requisição para o back-end
       await myfetch.post('/users/login', { username, password })
 
       // Se o login tiver sido bem-sucedido, o token estará no result
       // Vamos armazená-lo (POR ENQUANTO) no localStorage (INSEGURO!)
-      // window.localStorage.setItem(import.meta.env.VITE_AUTH_TOKEN_NAME, result.token)
+      //window.localStorage.setItem(import.meta.env.VITE_AUTH_TOKEN_NAME, result.token)
+
+
 
       // Vai para a página inicial
       navigate('/')
     }
-    catch(error) {
+    catch (error) {
       alert(error.message)
     }
   }
@@ -36,27 +38,27 @@ export default function LoginPage() {
         Autentique-se
       </Typography>
       <form onSubmit={handleFormSubmit}>
-        
-        <TextField 
-          label="Usuário" 
-          variant="filled" 
+
+        <TextField
+          label="Usuário"
+          variant="filled"
           value={username}
           fullWidth
           sx={{ mb: 2 }}
           onChange={event => setUsername(event.target.value)}
         />
 
-        <TextField 
-          label="Senha" 
+        <TextField
+          label="Senha"
           variant="filled"
-          type="password" 
+          type="password"
           value={password}
           fullWidth
           sx={{ mb: 2 }}
           onChange={event => setPassword(event.target.value)}
         />
 
-        <Button 
+        <Button
           variant="contained"
           type="submit"
           fullWidth
