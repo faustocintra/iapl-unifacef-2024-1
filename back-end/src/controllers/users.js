@@ -121,7 +121,9 @@ controller.login = async function(req, res) {
     // Se a senha não confere ~> HTTP 401: Unauthorized
     if(! passwordMatches) return res.status(401).end()
 
-      
+    
+    // Autorização por sessão
+
     // Cria a sessão para o usuário autenticado
     const sessid = uuidv7()   // Geração de um UUID para a sessão
     await prisma.session.create({ data: { sessid, user_id: user.id } })

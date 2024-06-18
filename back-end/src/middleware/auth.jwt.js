@@ -2,6 +2,9 @@ import jwt from 'jsonwebtoken'
 
 export default function(req, res, next) {
 
+  // middleware que cuida da autorização usando tokens JWT 
+  // diferente da autorização por sessões que o estado de login do usuário é guardado no servidor, os JWTs são tokens completos em si mesmos e são enviados com cada solicitação HTTP, permitindo uma autenticação sem depender do estado do servidor
+
   // As rotas que eventualmente não necessitarem
   // de autenticação devem ser colocadas no
   // objeto abaixo
@@ -29,6 +32,7 @@ export default function(req, res, next) {
   console.log({ COOKIE: req.cookies[process.env.AUTH_COOKIE_NAME] })
 
   // 1. PROCURA O TOKEN EM UM COOKIE
+  // na autenticação com tokens JWT, o token geralmente é enviado como um cookie HTTP-only ou no cabeçalho de autorização, diferente da autenticação baseada em sessão, em que um ID de sessão é trocado e gerenciado no servidor
   token = req.cookies[process.env.AUTH_COOKIE_NAME]
 
   // 2. SE O TOKEN NÃO FOI ENCONTRADO NO COOKIE, PROCURA NO HEADER
@@ -54,6 +58,8 @@ export default function(req, res, next) {
   }
 
   // Valida o token
+  // a função jwt.verify é importante na autenticação JWT, porque ela verifica se o token é válido 
+  // num sistema de autenticação baseado em sessões, essa verificação seria feita checando se o ID da sessão é válido dentro do armazenamento de sessões
   jwt.verify(token, process.env.TOKEN_SECRET, (error, user) => {
 
     // Token inválido ou expirado

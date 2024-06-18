@@ -34,6 +34,8 @@ function getOptions(body = null, method = 'GET') {
   const token = window.localStorage.getItem(import.meta.env.VITE_AUTH_TOKEN_NAME)
 
   if(token) options.headers.authorization = `Bearer ${token}`
+  // diferente da autenticação por sessão em que o navegador lida automaticamente com os cookies de sessão,
+  // neste caso é usado o armazenamento local para gerenciar o token JWT sendo incluido manualmente nas requisições
 
   return options
 }

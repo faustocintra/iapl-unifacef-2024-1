@@ -122,6 +122,11 @@ controller.login = async function(req, res) {
     if(! passwordMatches) return res.status(401).end()
 
     // Formamos o token de autenticação para enviar ao front-end
+
+
+
+   // autorização por token JWT 
+    // Geração do token JWT com informações do usuário
     const token = jwt.sign(
       user,   // O token contém as informações do usuário logado
       process.env.TOKEN_SECRET,   // Senha de criptografia do token
