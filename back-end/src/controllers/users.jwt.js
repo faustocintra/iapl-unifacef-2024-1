@@ -1,172 +1,171 @@
-import prisma from '../database/client.js'
-import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
+import prisma from "../database/client.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
-const controller = {}     // Objeto vazio
+const controller = {}; // Objeto vazio para armazenar os métodos do controlador
 
-controller.create = async function(req, res) {
+// Método para criar um novo usuário
+controller.create = async function (req, res) {
   try {
+    // Criptografando a senha antes de salvar no banco de dados
+    req.body.password = await bcrypt.hash(req.body.password, 12);
 
-    // Criptografando a senha
-    req.body.password = await bcrypt.hash(req.body.password, 12)
+    // Cria um novo usuário no banco de dados
+    await prisma.user.create({ data: req.body });
 
-    await prisma.user.create({ data: req.body })
-
-    // HTTP 201: Created
-    res.status(201).end()
+    // Retorna HTTP 201: Created para indicar que o usuário foi criado com sucesso
+    res.status(201).end();
+  } catch (error) {
+    console.error(error);
+    // Retorna HTTP 500: Internal Server Error em caso de erro
+    res.status(500).end();
   }
-  catch(error) {
-    console.error(error)
-    // HTTP 500: Internal Server Error
-    res.status(500).end()
-  }
-}
+};
 
-controller.retrieveAll = async function(req, res) {
+// Método para recuperar todos os usuários
+controller.retrieveAll = async function (req, res) {
   try {
-    const result = await prisma.user.findMany()
+    const result = await prisma.user.findMany();
 
-    // Deleta o campo "password", para não ser enviado ao front-end
-    for(let user of result) {
-      if(user.password) delete user.password
+    // Remove o campo "password" de cada usuário antes de enviar a resposta
+    for (let user of result) {
+      if (user.password) delete user.password;
     }
 
-    // HTTP 200: OK (implícito)
-    res.send(result)
+    // Retorna a lista de usuários com HTTP 200: OK (implícito)
+    res.send(result);
+  } catch (error) {
+    console.error(error);
+    // Retorna HTTP 500: Internal Server Error em caso de erro
+    res.status(500).end();
   }
-  catch(error) {
-    console.error(error)
-    // HTTP 500: Internal Server Error
-    res.status(500).end()
-  }
-}
+};
 
+// Método para recuperar um único usuário pelo ID
 controller.retrieveOne = async function (req, res) {
   try {
     const result = await prisma.user.findUnique({
-      where: { id: Number(req.params.id)}
-    })
+      where: { id: Number(req.params.id) },
+    });
 
-    // Deleta o campo "password", para não ser enviado ao front-end
-    if(result.password) delete result.password
+    // Remove o campo "password" antes de enviar a resposta
+    if (result && result.password) delete result.password;
 
-    // Encontrou: retorna HTTP 200: OK (implícito)
-    if(result) res.send(result)
-    // Não encontrou: retorna HTTP 404: Not Found
-    else res.status(404).end()
+    // Se o usuário for encontrado, retorna HTTP 200: OK (implícito)
+    if (result) res.send(result);
+    // Se o usuário não for encontrado, retorna HTTP 404: Not Found
+    else res.status(404).end();
+  } catch (error) {
+    console.error(error);
+    // Retorna HTTP 500: Internal Server Error em caso de erro
+    res.status(500).end();
   }
-  catch(error) {
-    console.error(error)
-    // HTTP 500: Internal Server Error
-    res.status(500).end()
-  }
-}
+};
 
+// Método para atualizar um usuário
 controller.update = async function (req, res) {
   try {
-
-    // Criptografando o campo password caso o valor tenha sido passado
-    if(req.body.password) {
-      req.body.password = await bcrypt.hash(req.body.password, 12)
+    // Criptografando a senha caso ela tenha sido passada
+    if (req.body.password) {
+      req.body.password = await bcrypt.hash(req.body.password, 12);
     }
 
     const result = await prisma.user.update({
       where: { id: Number(req.params.id) },
-      data: req.body
-    })
+      data: req.body,
+    });
 
-    // Encontrou e atualizou ~> HTTP 204: No Content
-    if(result) res.status(204).end()
-    // Não encontrou (e não atualizou) ~> HTTP 404: Not Found
-    else res.status(404).end()
+    // Se o usuário for encontrado e atualizado, retorna HTTP 204: No Content
+    if (result) res.status(204).end();
+    // Se o usuário não for encontrado, retorna HTTP 404: Not Found
+    else res.status(404).end();
+  } catch (error) {
+    console.error(error);
+    // Retorna HTTP 500: Internal Server Error em caso de erro
+    res.status(500).end();
   }
-  catch(error) {
-    console.error(error)
-    // HTTP 500: Internal Server Error
-    res.status(500).end()
-  }
-}
+};
 
+// Método para excluir um usuário
 controller.delete = async function (req, res) {
   try {
     const result = await prisma.user.delete({
-      where: { id: Number(req.params.id) }
-    })
+      where: { id: Number(req.params.id) },
+    });
 
-    // Encontrou e excluiu ~> HTTP 204: No Content
-    if(result) res.status(204).end()
-    // Não encontrou (e não excluiu) ~> HTTP 404: Not Found
-    else res.status(404).end()
+    // Se o usuário for encontrado e excluído, retorna HTTP 204: No Content
+    if (result) res.status(204).end();
+    // Se o usuário não for encontrado, retorna HTTP 404: Not Found
+    else res.status(404).end();
+  } catch (error) {
+    console.error(error);
+    // Retorna HTTP 500: Internal Server Error em caso de erro
+    res.status(500).end();
   }
-  catch(error) {
-    console.error(error)
-    // HTTP 500: Internal Server Error
-    res.status(500).end()
-  }
-}
+};
 
-controller.login = async function(req, res) {
-
+// Método de login
+controller.login = async function (req, res) {
   try {
     // Busca o usuário pelo username
     const user = await prisma.user.findUnique({
-      where: { username: req.body.username }
-    })
-    // Se o usuário não for encontrado, retorna
-    // HTTP 401: Unauthorized
-    if(! user) return res.status(401).end()
-    // Usuário encontrado, vamos conferir a senha
-    const passwordMatches = await bcrypt.compare(req.body.password, user.password)
-    // Se a senha não confere ~> HTTP 401: Unauthorized
-    if(! passwordMatches) return res.status(401).end()
+      where: { username: req.body.username },
+    });
 
-    // Formamos o token de autenticação para enviar ao front-end
+    // Se o usuário não for encontrado, retorna HTTP 401: Unauthorized
+    if (!user) return res.status(401).end();
+
+    // Verifica se a senha está correta
+    const passwordMatches = await bcrypt.compare(
+      req.body.password,
+      user.password
+    );
+
+    // Se a senha não estiver correta, retorna HTTP 401: Unauthorized
+    if (!passwordMatches) return res.status(401).end();
+
+    // Gera um token JWT com as informações do usuário
     const token = jwt.sign(
-      user,   // O token contém as informações do usuário logado
-      process.env.TOKEN_SECRET,   // Senha de criptografia do token
-      { expiresIn: '24h' }        // Prazo de validade do token
-    )
+      user, // O token contém as informações do usuário logado
+      process.env.TOKEN_SECRET, // Senha de criptografia do token
+      { expiresIn: "24h" } // Prazo de validade do token
+    );
 
-    // Forma o cookie para enviar ao front-end
+    // Define um cookie com o token para autenticação
     res.cookie(process.env.AUTH_COOKIE_NAME, token, {
-      httpOnly: true,   // O cookie ficará inacessível para JS no front-end
-      secure: true,
-      sameSite: 'None',
-      path: '/',
-      maxAge: 24 * 60 * 60 * 1000   // 24 horas
-    })
+      httpOnly: true, // O cookie ficará inacessível para JS no front-end
+      secure: true, // O cookie só será enviado em conexões HTTPS
+      sameSite: "None", // Permite o envio do cookie em requisições cross-site
+      path: "/", // O cookie estará disponível em todas as rotas
+      maxAge: 24 * 60 * 60 * 1000, // 24 horas
+    });
 
-    // Envia o token na resposta com código HTTP 200: OK (implícito)
-    //res.send({token})
-
-    // HTTP 204: No Content
-    res.status(204).end()
-
+    // Retorna HTTP 204: No Content para indicar sucesso
+    res.status(204).end();
+  } catch (error) {
+    console.error(error);
+    // Retorna HTTP 500: Internal Server Error em caso de erro
+    res.status(500).end();
   }
-  catch(error) {
-    console.error(error)
-    // HTTP 500: Internal Server Error
-    res.status(500).end()
-  }
-}
+};
 
-controller.me = function(req, res) {
+// Método para obter informações do usuário autenticado
+controller.me = function (req, res) {
+  // Se o usuário autenticado estiver salvo em req.authUser, retorna-o
+  if (req.authUser) res.send(req.authUser);
+  // Se não, retorna HTTP 401: Unauthorized
+  else res.status(401).end();
+};
 
-  // Se o usuário autenticado estiver salvo em req,
-  // retorna-o
-  if(req.authUser) res.send(req.authUser)
-
-  // Senão, retorna HTTP 401: Unauthorized
-  else res.status(401).end()
-}
-
-controller.logout = function(req, res) {
+// Método para logout
+controller.logout = function (req, res) {
   // Apaga o cookie que armazena o token de autorização
-  res.clearCookie(process.env.AUTH_COOKIE_NAME)
-  res.send(204).end()
-}
+  res.clearCookie(process.env.AUTH_COOKIE_NAME);
+  // Retorna HTTP 204: No Content para indicar sucesso
+  res.status(204).end();
+};
 
-export default controller
+export default controller;
 
 // Ao logar, é gerado e enviado um token JWT com validade de 24 horas ao cliente em um cookie após validar as credenciais
 // Ao fazer o logout, apaga-se o cookie que armazena o token JWT.
