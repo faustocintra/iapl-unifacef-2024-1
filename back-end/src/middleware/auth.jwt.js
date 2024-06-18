@@ -5,6 +5,8 @@ export default function(req, res, next) {
   // As rotas que eventualmente não necessitarem
   // de autenticação devem ser colocadas no
   // objeto abaixo
+
+  //Caso não necessite de autenticação essa será a rota:
   const bypassRoutes = [
     { url: '/users/login', method: 'POST' },
     { url: '/users', method: 'POST' }
@@ -75,3 +77,5 @@ export default function(req, res, next) {
   })
 
 }
+
+//Essa parte é responsável pela confirmação do token dentro do cookie, caso ele não é encontrado ele é tratado dentro dessa parte do código .jwt.js
