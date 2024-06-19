@@ -20,6 +20,16 @@ model User {
   password    String        // Senha
   is_admin    Boolean       @default(false)
   sessions    Session[]
+<<<<<<< HEAD
+=======
+}
+
+model Session {
+  sessid      String        @id               // id da sessão
+  user_id     Int                             // id do usuário
+  user        User          @relation(fields: [user_id], references: [id])
+  start_time  DateTime      @default(now())   // data/hora de início da sessão
+>>>>>>> c392050f9ef7c109dc15c925c240f62e1d15fa50
 }
 
 model Session {

@@ -2,15 +2,27 @@ import jwt from 'jsonwebtoken'
 
 export default function(req, res, next) {
 
+<<<<<<< HEAD
   // As rotas que não necessitam de autenticação devem ser colocadas no objeto abaixo.
   // Essas rotas podem ser acessadas sem autenticação.
+=======
+  // As rotas que eventualmente não necessitarem
+  // de autenticação devem ser colocadas no
+  // objeto abaixo
+>>>>>>> c392050f9ef7c109dc15c925c240f62e1d15fa50
   const bypassRoutes = [
     { url: '/users/login', method: 'POST' },
     { url: '/users', method: 'POST' }
   ]
 
+<<<<<<< HEAD
   // Verifica se a rota atual está na lista de rotas que não necessitam de autenticação.
   // Se estiver, permite o acesso sem verificar a autenticação e chama o próximo middleware.
+=======
+  // Verifica se a rota atual está nas exceções
+  // de bypassRoutes. Caso esteja, passa para o
+  // próximo middleware sem verificar a autenticação
+>>>>>>> c392050f9ef7c109dc15c925c240f62e1d15fa50
   for(let route of bypassRoutes) {
     if(route.url === req.url && route.method === req.method) {
       console.log(`Rota ${route.url}, método ${route.method} não autenticados por exceção`)
@@ -19,9 +31,14 @@ export default function(req, res, next) {
     }
   }
   
+<<<<<<< HEAD
   // Para todas as demais rotas, é necessário que o token JWT tenha sido enviado
   // em um cookie ou no cabeçalho 'Authorization'. Este é um exemplo de gerenciamento de autenticação
   // baseado em tokens JWT, onde um token é usado para autenticar o usuário.
+=======
+  // Para todas as demais rotas, é necessário que o token tenha
+  // sido enviado em um cookie ou no cabeçalho Authorization
+>>>>>>> c392050f9ef7c109dc15c925c240f62e1d15fa50
 
   let token = null
 
