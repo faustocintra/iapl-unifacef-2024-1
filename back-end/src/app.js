@@ -8,9 +8,15 @@ import cookieParser from "cookie-parser";
 import logger from "morgan";
 
 import indexRouter from "./routes/index.js";
-//import carsRouter from "./routes/cars.js";
+//import usersRouter from "./routes/users.js";
 
 const app = express();
+
+import cors from 'cors'
+app.use(cors({
+  origin: process.env.FRONT_END_URL.split(','),
+  credentials: true
+}))
 
 app.use(logger("dev"));
 app.use(json());
@@ -18,7 +24,7 @@ app.use(urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use("/", indexRouter);
-//app.use("/cars", carsRouter);
+//app.use("/users", usersRouter);
 
 // MIDDLEWARE DE AUTENTICAÇÃO
 import auth from './middleware/auth.js'
@@ -30,8 +36,5 @@ app.use(auth)
 
 import usersRouter from './routes/users.js'
 app.use('/users', usersRouter)
-
-import carsRouter from './routes/cars.js'
-app.use('/cars', carsRouter)
 
 export default app;
